@@ -1,0 +1,1 @@
+export { Wow } from './Wow';
