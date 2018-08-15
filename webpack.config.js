@@ -1,4 +1,8 @@
 const path = require('path');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
+const devMode = process.env.NODE_ENV !== 'production';
+
 
 module.exports = {
     entry: "./src/index.tsx",
@@ -12,7 +16,7 @@ module.exports = {
 
     resolve: {
         // Add '.ts' and '.tsx' as resolvable extensions.
-        extensions: [".ts", ".tsx", ".js", ".json"]
+        extensions: [".ts", ".tsx", ".js", ".json", '.scss']
     },
 
     module: {
@@ -23,19 +27,34 @@ module.exports = {
             // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
             { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },
 
+            // {
+            //     test: /\.css$/,
+            //     use: [
+            //         {
+            //             loader: 'style-loader',
+            //         },
+            //         {
+            //             loader: 'css-loader',
+            //         },
+            //     ],
+            // },
             {
-                test: /\.css$/,
+                test: /\.(sa|sc|c)ss$/,
                 use: [
-                    {
-                        loader: 'style-loader',
-                    },
-                    {
-                        loader: 'css-loader',
-                    },
+                  MiniCssExtractPlugin.loader,
+                  'css-loader',
+                  'sass-loader',
                 ],
-            },
+            }
         ]
     },
+
+    plugins: [
+        new MiniCssExtractPlugin({
+            filename: devMode ? '[name].bundle.css' : '[name].[hash].css',
+            chunkFilename: devMode ? '[id].css' : '[id].[hash].css',
+        })
+    ],
 
     // When importing a module whose path matches one of the following, just
     // assume a corresponding global variable exists and use that instead.

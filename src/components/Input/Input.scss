@@ -1,0 +1,93 @@
+/**
+* Make the field a flex-container, reverse the order so label is on top.
+*/
+
+.mf-ac-field {
+  display: flex;
+  flex-flow: column-reverse;
+  margin-bottom: 1em;
+}
+/**
+* Add a transition to the label and input.
+* I'm not even sure that touch-action: manipulation works on
+* inputs, but hey, it's new and cool and could remove the 
+* pesky delay.
+*/
+
+.mf-ac-label, .mf-ac-input {
+// label, input {
+  transition: all 0.2s;
+  touch-action: manipulation;
+}
+
+.mf-ac-input {
+// input {
+  display: block;
+  // width: 100%;
+  padding: .5rem .75rem;
+  font-size: 1rem;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: .25rem;
+  -webkit-appearance: none;
+  line-height: 1.25;
+  color: #495057;
+  background-color: #fff;
+  background-image: none;
+  background-clip: padding-box;
+  cursor: text;
+
+  &:focus {
+    border-color: #80bdff;
+    outline: 0;
+  }
+}
+
+.mf-ac-label {
+// label {
+  // text-transform: uppercase;
+  // letter-spacing: 0.05em;
+  font-size: 1rem;
+}
+/**
+* Translate down and scale the label up to cover the placeholder,
+* when following an input (with placeholder-shown support).
+* Also make sure the label is only on one row, at max 2/3rds of the
+* field—to make sure it scales properly and doesn't wrap.
+*/
+.mf-ac-input:placeholder-shown + .mf-ac-label {
+// input:placeholder-shown + label {
+  cursor: text;
+  max-width: 66.66%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform-origin: left bottom;
+  transform: translate(1rem, 2.125rem) scale(1.5);
+}
+/**
+* By default, the placeholder should be transparent. Also, it should 
+* inherit the transition.
+*/
+::-webkit-input-placeholder {
+  opacity: 0;
+  transition: inherit;
+}
+/**
+* Show the placeholder when the input is focused.
+*/
+.mf-ac-input::-webkit-input-placeholder {
+// input:focus::-webkit-input-placeholder {
+  opacity: 1;
+}
+/**
+* When the element is focused, remove the label transform.
+* Also, do this when the placeholder is _not_ shown, i.e. when 
+* there's something in the input at all.
+*/
+.mf-ac-input:not(:placeholder-shown) + .mf-ac-label,
+.mf-ac-input:focus + .mf-ac-label {
+// input:not(:placeholder-shown) + label,
+// input:focus + label {
+  transform: translate(0, 0) scale(1);
+  cursor: pointer;
+}

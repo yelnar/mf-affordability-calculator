@@ -1,0 +1,211 @@
+.mf-ac {
+  @import "../../node_modules/normalize-scss/sass/normalize";
+  @import 'mixins/_media-queries.scss';
+
+  @include normalize();
+
+  // @import "../../vendor/normalize/normalize.scss";
+
+  font-size: 16px;
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Open Sans", Arial, sans-serif;
+
+  &__wrapper {
+    display: block;
+    width: 100%;
+    background: #f8f8f8;
+  }
+
+  /*********************
+    Header
+  *********************/
+
+  &__header {
+    padding: 1rem;
+  }
+
+  /*********************
+    Controls
+  *********************/
+
+  &__controls {
+    display: flex;
+    flex-direction: column;
+
+    @include tablet {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__control {
+    margin: 1rem 1rem;
+  }
+
+  /*********************
+    Input 
+  *********************/
+  
+  /**
+  * Make the field a flex-container, reverse the order so label is on top.
+  */
+  &__field {
+    display: flex;
+    flex-flow: column-reverse;
+    margin-bottom: 1em;
+  }
+  /**
+  * Add a transition to the label and input.
+  * I'm not even sure that touch-action: manipulation works on
+  * inputs, but hey, it's new and cool and could remove the 
+  * pesky delay.
+  */
+
+  &__label, &__input {
+    transition: all 0.2s;
+    touch-action: manipulation;
+  }
+
+  &__input {
+    display: block;
+    padding: .5rem .75rem;
+    font-size: 1rem;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: .25rem;
+    -webkit-appearance: none;
+    line-height: 1.25;
+    color: #495057;
+    background-color: #fff;
+    background-image: none;
+    background-clip: padding-box;
+    cursor: text;
+
+    &:focus {
+      border-color: #80bdff;
+      outline: 0;
+    }
+  }
+
+  &__label {
+    font-size: 1rem;
+  }
+  
+  /**
+  * Translate down and scale the label up to cover the placeholder,
+  * when following an input (with placeholder-shown support).
+  * Also make sure the label is only on one row, at max 2/3rds of the
+  * field—to make sure it scales properly and doesn't wrap.
+  */
+  &__input:placeholder-shown + &__label {
+    cursor: text;
+    max-width: 66.66%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transform-origin: left bottom;
+    transform: translate(1rem, 2.125rem) scale(1.5);
+  }
+  /**
+  * By default, the placeholder should be transparent. Also, it should 
+  * inherit the transition.
+  */
+  ::-webkit-input-placeholder {
+    opacity: 0;
+    transition: inherit;
+  }
+  /**
+  * Show the placeholder when the input is focused.
+  */
+  &__input::-webkit-input-placeholder {
+  // input:focus::-webkit-input-placeholder {
+    opacity: 1;
+  }
+  /**
+  * When the element is focused, remove the label transform.
+  * Also, do this when the placeholder is _not_ shown, i.e. when 
+  * there's something in the input at all.
+  */
+  &__input:not(:placeholder-shown) + &__label,
+  &__input:focus + &__label {
+  // input:not(:placeholder-shown) + label,
+  // input:focus + label {
+    transform: translate(0, 0) scale(1);
+    cursor: pointer;
+  }
+
+  /*********************
+    Result 
+  *********************/
+
+  &__result-box {
+    display: flex;
+    flex-direction: column;
+    background: #f0f0f0;
+    margin: 1rem;
+
+    @include tablet {
+      flex-direction: row;
+    }
+  }
+
+  &__result-status, &__result-detail {
+    width: 50%;
+    margin: 1rem;
+  }
+
+  &__text-link {
+    text-decoration: none;
+  }
+
+  /*********************
+    Footer 
+  *********************/
+
+  &__footer {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+
+    &__first-block {
+      width: 60%;
+    }
+
+    &__second-block {
+      width: 100%;
+    }
+
+    a, &__button {
+      box-sizing: border-box;
+      display: inline-block;
+      width: 100%;
+      height: 2.75rem;
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      color: #fff;
+      background-color: #39af43;
+      border-color: #00a903;
+      cursor: pointer;
+      font-weight: 400;
+      text-align: center;
+      text-transform: uppercase;
+      text-decoration: none;
+      white-space: nowrap;
+      vertical-align: middle;
+      user-select: none;
+      border: 1px solid transparent;
+      padding: .375rem .75rem;
+    }
+
+    @include tablet {
+      flex-direction: row;
+
+      &__second-block {
+        width: 40%;
+        text-align: right;
+      }
+
+      a, &__button {
+        width: auto;
+      }
+    }
+  }
+}

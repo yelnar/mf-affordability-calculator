@@ -1,0 +1,32 @@
+.mf-ac-footer {
+  display: flex;
+  flex-direction: row;
+  padding: 1rem;
+
+  &-first-block {
+    width: 60%;
+  }
+
+  &-second-block {
+    width: 40%;
+  }
+
+  &-button {
+    display: inline-block;
+    height: 2.75rem;
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    color: #fff;
+    background-color: #39af43;
+    border-color: #00a903;
+    cursor: pointer;
+    font-weight: 400;
+    text-align: center;
+    text-transform: uppercase;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: .375rem .75rem;
+  }
+}
