@@ -7,12 +7,19 @@
         <link rel="stylesheet" href="./dist/main.bundle.css">
     </head>
     <body style="background: #000;">
-        <div style="width: 50%; left: 25%;"></div>
-        <div class="mf-affordability-calculator"></div>
-        <div>
-        <br>
+        <div style="width: 50%; left: 25%;">
+          
         </div>
-        <div class="mf-affordability-calculator"></div>
+        <div class="mf-ac"></div>
+        <div>
+          <br>
+        </div>
+        <div class="mf-ac"></div>
         <script src="./dist/main.bundle.js"></script>
+        <script>
+          window.onload = function() {
+            mfAffordabilityCalculator.renderWidget({ selector: '.mf-ac' });
+          }
+        </script>
     </body>
 </html>

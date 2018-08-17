@@ -1,4 +1,4 @@
-@mixin mobile {
+@mixin mobile { // todo: rename this mixin
   @media (min-width: 480px) {
     @content;
   }
