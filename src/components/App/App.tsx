@@ -4,9 +4,12 @@
 import * as React from 'react';
 
 import { Header } from '../Header';
-import { Controls } from '../Controls';
+import { Controls, IControlsReturn } from '../Controls';
 import { Result } from '../Result';
 import { Footer } from '../Footer';
+
+import * as Tools from '../../Tools';
+import { IncomingMessage } from 'http';
 
 export interface AppProps {
   propertyPrice: number;
@@ -16,7 +19,7 @@ export interface AppProps {
   monthlyIncome: number;
   monthlyDebts: number;
 }
-export interface IAppState { isToggleOn: boolean; }
+export interface IAppState { dbr: number; }
 
 // export const HelloWorld = (
 //     props: HelloWorldProps) => <h1>Hello from { props.compiler } and { props.framework }</h1>;
@@ -67,8 +70,7 @@ export class App extends React.Component<AppProps, IAppState> {
 
   constructor(props: AppProps) {
     super(props);
-    this.state = { isToggleOn: true };
-    this.handleClick = this.handleClick.bind(this);
+    this.state = { dbr: 12 };
 
     if (this.props.propertyPrice) { this.propertyPrice =  this.props.propertyPrice; }
     if (this.props.downPayment) { this.downPayment =  this.props.downPayment; }
@@ -76,9 +78,30 @@ export class App extends React.Component<AppProps, IAppState> {
     if (this.props.interestRate) { this.interestRate =  this.props.interestRate; }
     if (this.props.monthlyIncome) { this.monthlyIncome =  this.props.monthlyIncome; }
     if (this.props.monthlyDebts) { this.monthlyIncome =  this.props.monthlyDebts; }
+
+    this.calculateDBR = this.calculateDBR.bind(this);
+    this.calculateMonthlyPayment = this.calculateMonthlyPayment.bind(this);
+    this.getLoanAmount = this.getLoanAmount.bind(this);
+    this.getLandDepartmentFee = this.getLandDepartmentFee.bind(this);
+    this.getRegistrationFee = this.getRegistrationFee.bind(this);
+    this.getMortgageRegistration = this.getMortgageRegistration.bind(this);
+    this.getRealEstateAgencyFee = this.getRealEstateAgencyFee.bind(this);
+    this.getBankArrangementFee = this.getBankArrangementFee.bind(this);
+    this.getTotalPurchaseCost = this.getTotalPurchaseCost.bind(this);
+    this.getMothlyPayment = this.getMothlyPayment.bind(this);
+    this.getNumberValue = this.getNumberValue.bind(this);
+    this.onIncomeChange = this.onIncomeChange.bind(this);
+    this.onDebtsChange = this.onDebtsChange.bind(this);
+    this.onDownPaymentChange = this.onDownPaymentChange.bind(this);
   }
 
-  private calculateMonthlyPayment(withFeesValue = false) {
+  private calculateDBR(): number {
+    const monthlyPayment = this.calculateMonthlyPayment();
+    const totalMonthlyDebts = monthlyPayment + this.monthlyDebts;
+    return Math.round(totalMonthlyDebts / this.monthlyIncome * 100);
+  }
+
+  private calculateMonthlyPayment(withFeesValue = false): number {
     let loanAmount = this.getLoanAmount(this.propertyPrice, this.downPayment);
     const landDepartmentFee = this.getLandDepartmentFee(this.propertyPrice);
     const registrationFee = this.getRegistrationFee(this.propertyPrice);
@@ -176,26 +199,56 @@ export class App extends React.Component<AppProps, IAppState> {
     return loanAmount * (monthlyInterest * term / (term - 1));
   }
 
+  private getNumberValue(event: Event): number {
+    const value = (event.target as HTMLInputElement).value;
+    if (!value) return 0;
+    const numberValue = Tools.toNumber(value);
+    if (Number.isNaN(numberValue)) return 0;
+    return numberValue;
+  }
+
+  onIncomeChange(event: Event): void {
+    const income = this.getNumberValue(event);
+    if (income < 0) { return; }
+    this.monthlyIncome = income;
+    const dbr = this.calculateDBR();
+    this.setState({ dbr });
+  }
+
+  onDebtsChange(event: Event) {
+    const debts = this.getNumberValue(event);
+    if (debts < 0) { return; }
+    this.monthlyDebts = debts;
+    const dbr = this.calculateDBR();
+    this.setState({ dbr });
+  }
+
+  onDownPaymentChange(event: Event) {
+    const downPayment = this.getNumberValue(event);
+    if (downPayment < 0) { return; }
+    this.downPayment = downPayment;
+    const dbr = this.calculateDBR();
+    this.setState({ dbr });
+  }
+
   render() {
     return (
       <div className="mf-ac">
         <div className="mf-ac__wrapper">
             <Header />
-            <Controls />
-            <Result status="Excellent" propertyPriceLimit="1,500,000" />
-            <Footer
-              monthlyPayment="7,845 AED/month"
-              loanDuration="25"
-              downPayment="25"
-              interestRate="3.24"/>
+            <Controls income = { this.monthlyIncome }
+                      debts = { this.monthlyDebts }
+                      downPayment = { this.downPayment }
+                      onIncomeChange = { this.onIncomeChange }
+                      onDebtsChange = { this.onDebtsChange }
+                      onDownPaymentChange = { this.onDownPaymentChange } />
+            <Result status = "Excellent" propertyPriceLimit = "1,500,000" dbr = { this.state.dbr } />
+            <Footer monthlyPayment = "7,845 AED/month"
+                    loanDuration = "25"
+                    downPayment = "25"
+                    interestRate = "3.24"/>
         </div>
       </div>
     );
-  }
-
-  handleClick() {
-    this.setState(prevState => ({
-      isToggleOn: !prevState.isToggleOn,
-    }));
   }
 }

@@ -8,6 +8,7 @@ export interface IInputProps {
   placeholder: string;
   label: string;
   onChange: any;
+  value: number;
 }
 
 export function Input(props: IInputProps) {
@@ -20,6 +21,7 @@ export function Input(props: IInputProps) {
           type={ props.type }
           name={ props.name }
           id={ id }
+          value={ props.value }
           placeholder=" "
           onChange={ props.onChange } />
         <label className="mf-ac__label" htmlFor={ id }>{props.label }</label>

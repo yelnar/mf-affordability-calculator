@@ -3,10 +3,33 @@ import * as React from 'react';
 
 import { Input } from '../Input';
 
-export function Controls() {
-  const onChange = (event: Event) => {
-    const value = (event.target as HTMLInputElement).value;
-    console.log('onChange', value);
+export interface IControlsProps {
+  income: number;
+  debts: number;
+  downPayment: number;
+  onIncomeChange: any;
+  onDebtsChange: any;
+  onDownPaymentChange: any;
+}
+
+export interface IControlsReturn {
+  income?: string;
+  debts?: string;
+  downPayment?: string;
+  [key: string]: string;
+}
+
+export function Controls(props: IControlsProps) {
+  const onIncomeChange = (event: Event) => {
+    props.onIncomeChange(event);
+  };
+
+  const onDebtsChange = (event: Event) => {
+    props.onDebtsChange(event);
+  };
+
+  const onDownPaymentChange = (event: Event) => {
+    props.onDownPaymentChange(event);
   };
 
   return (
@@ -17,7 +40,8 @@ export function Controls() {
           name="income"
           label="Monthly income"
           placeholder="Monthly income"
-          onChange={onChange}
+          onChange={onIncomeChange}
+          value={ props.income }
           type="text" />
       </div>
 
@@ -27,7 +51,8 @@ export function Controls() {
           name="debts"
           label="Monthly debts"
           placeholder="Monthly debts"
-          onChange={onChange}
+          onChange={onDebtsChange}
+          value={ props.debts }
           type="text" />
       </div>
 
@@ -37,7 +62,8 @@ export function Controls() {
           name="downpayment"
           label="Down payment"
           placeholder="Down payment"
-          onChange={onChange}
+          value={ props.downPayment }
+          onChange={onDownPaymentChange}
           type="text" />
       </div>
     </div>
