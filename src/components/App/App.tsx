@@ -89,7 +89,6 @@ export class App extends React.Component<AppProps, IAppState> {
     this.getBankArrangementFee = this.getBankArrangementFee.bind(this);
     this.getTotalPurchaseCost = this.getTotalPurchaseCost.bind(this);
     this.getMothlyPayment = this.getMothlyPayment.bind(this);
-    this.getNumberValue = this.getNumberValue.bind(this);
     this.onIncomeChange = this.onIncomeChange.bind(this);
     this.onDebtsChange = this.onDebtsChange.bind(this);
     this.onDownPaymentChange = this.onDownPaymentChange.bind(this);
@@ -199,33 +198,19 @@ export class App extends React.Component<AppProps, IAppState> {
     return loanAmount * (monthlyInterest * term / (term - 1));
   }
 
-  private getNumberValue(event: Event): number {
-    const value = (event.target as HTMLInputElement).value;
-    if (!value) return 0;
-    const numberValue = Tools.toNumber(value);
-    if (Number.isNaN(numberValue)) return 0;
-    return numberValue;
-  }
-
-  onIncomeChange(event: Event): void {
-    const income = this.getNumberValue(event);
-    if (income < 0) { return; }
+  onIncomeChange(income: number): void {
     this.monthlyIncome = income;
     const dbr = this.calculateDBR();
     this.setState({ dbr });
   }
 
-  onDebtsChange(event: Event) {
-    const debts = this.getNumberValue(event);
-    if (debts < 0) { return; }
+  onDebtsChange(debts: number) {
     this.monthlyDebts = debts;
     const dbr = this.calculateDBR();
     this.setState({ dbr });
   }
 
-  onDownPaymentChange(event: Event) {
-    const downPayment = this.getNumberValue(event);
-    if (downPayment < 0) { return; }
+  onDownPaymentChange(downPayment: number) {
     this.downPayment = downPayment;
     const dbr = this.calculateDBR();
     this.setState({ dbr });
