@@ -6,17 +6,22 @@ import * as React from 'react';
 import * as Tools from '../../Tools';
 
 export interface IResultProps {
-  status: string;
   affordablePropertyPrice: number;
   dbr: number;
+  isDownPaymentEnough: boolean;
+  isSalaryEnough: boolean;
 }
 
 export function Result(props: IResultProps) {
   let status;
 
-  if (props.dbr < 35) {
+  if (!props.isSalaryEnough) {
+    status = 'Poor';
+  } else if (!props.isDownPaymentEnough) {
+    status = 'Poor';
+  } else if (props.dbr <= 35) {
     status = 'Excellent';
-  } else if (props.dbr < 50) {
+  } else if (props.dbr <= 50) {
     status = 'Good';
   } else {
     status = 'Poor';
