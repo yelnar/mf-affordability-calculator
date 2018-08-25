@@ -8,7 +8,8 @@ export interface IInputProps {
   placeholder: string;
   label: string;
   onChange: any;
-  value: number;
+  value: string;
+  errorMessage: string;
 }
 
 export function Input(props: IInputProps) {
@@ -25,6 +26,7 @@ export function Input(props: IInputProps) {
           placeholder=" "
           onChange={ props.onChange } />
         <label className="mf-ac__label" htmlFor={ id }>{props.label }</label>
+        <small className="mf-ac__input-error">{ props.errorMessage }</small>
     </div>
   );
 }

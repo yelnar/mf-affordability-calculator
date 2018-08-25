@@ -1,1 +1,1 @@
-export { Controls, IControlsReturn } from './Controls';
+export { Controls } from './Controls';

@@ -4,12 +4,9 @@
 import * as React from 'react';
 
 import { Header } from '../Header';
-import { Controls, IControlsReturn } from '../Controls';
+import { Controls } from '../Controls';
 import { Result } from '../Result';
 import { Footer } from '../Footer';
-
-import * as Tools from '../../Tools';
-import { IncomingMessage } from 'http';
 
 export interface AppProps {
   propertyPrice: number;
@@ -19,7 +16,10 @@ export interface AppProps {
   monthlyIncome: number;
   monthlyDebts: number;
 }
-export interface IAppState { dbr: number; }
+export interface IAppState {
+  dbr: number;
+  affordablePropertyPrice: number;
+}
 
 // export const HelloWorld = (
 //     props: HelloWorldProps) => <h1>Hello from { props.compiler } and { props.framework }</h1>;
@@ -54,7 +54,7 @@ export class App extends React.Component<AppProps, IAppState> {
    * Monthly income
    * @type {number}
    */
-  private monthlyIncome = 15000;
+  private monthlyIncome = 30000;
 
   /**
    * Monthly debts
@@ -70,14 +70,16 @@ export class App extends React.Component<AppProps, IAppState> {
 
   constructor(props: AppProps) {
     super(props);
-    this.state = { dbr: 12 };
+    this.state = { dbr: 0, affordablePropertyPrice: 0 };
 
     if (this.props.propertyPrice) { this.propertyPrice =  this.props.propertyPrice; }
-    if (this.props.downPayment) { this.downPayment =  this.props.downPayment; }
     if (this.props.loanLength) { this.loanLength =  this.props.loanLength; }
     if (this.props.interestRate) { this.interestRate =  this.props.interestRate; }
     if (this.props.monthlyIncome) { this.monthlyIncome =  this.props.monthlyIncome; }
     if (this.props.monthlyDebts) { this.monthlyIncome =  this.props.monthlyDebts; }
+
+    if (this.props.downPayment) { this.downPayment =  this.props.downPayment; }
+    else { this.downPayment = Math.round(this.propertyPrice / 4); }
 
     this.calculateDBR = this.calculateDBR.bind(this);
     this.calculateMonthlyPayment = this.calculateMonthlyPayment.bind(this);
@@ -94,10 +96,14 @@ export class App extends React.Component<AppProps, IAppState> {
     this.onDownPaymentChange = this.onDownPaymentChange.bind(this);
   }
 
-  private calculateDBR(): number {
-    const monthlyPayment = this.calculateMonthlyPayment();
-    const totalMonthlyDebts = monthlyPayment + this.monthlyDebts;
-    return Math.round(totalMonthlyDebts / this.monthlyIncome * 100);
+  componentDidMount() {
+    this.updateWidget();
+  }
+
+  updateWidget() {
+    const dbr = this.calculateDBR();
+    const affordablePropertyPrice = this.calculateAffordablePropertyPrice();
+    this.setState({ dbr, affordablePropertyPrice });
   }
 
   private calculateMonthlyPayment(withFeesValue = false): number {
@@ -198,22 +204,36 @@ export class App extends React.Component<AppProps, IAppState> {
     return loanAmount * (monthlyInterest * term / (term - 1));
   }
 
+  private calculateDBR(): number {
+    const monthlyPayment = this.calculateMonthlyPayment();
+    const totalMonthlyDebts = monthlyPayment + this.monthlyDebts;
+    return Math.round(totalMonthlyDebts / this.monthlyIncome * 100);
+  }
+
+  calculateAffordablePropertyPrice(): number {
+    debugger;
+    const periods = this.loanLength * 12;
+    const interestRateNumber = Number((this.interestRate / 100).toFixed(4));
+    const monthlyInterest = interestRateNumber / 12;
+    const term = Math.pow((1 + monthlyInterest), periods);
+    const monthlyPaymentFactor = (monthlyInterest * term / (term - 1));
+    // return Math.round(((this.monthlyIncome / 2 - this.monthlyDebts) / monthlyPaymentFactor + this.downPayment) / 100) * 100;
+    return Math.round(4 * ((this.monthlyIncome / 2 - this.monthlyDebts) / monthlyPaymentFactor) / (3 * 100)) * 100;
+  }
+
   onIncomeChange(income: number): void {
     this.monthlyIncome = income;
-    const dbr = this.calculateDBR();
-    this.setState({ dbr });
+    this.updateWidget();
   }
 
   onDebtsChange(debts: number) {
     this.monthlyDebts = debts;
-    const dbr = this.calculateDBR();
-    this.setState({ dbr });
+    this.updateWidget();
   }
 
   onDownPaymentChange(downPayment: number) {
     this.downPayment = downPayment;
-    const dbr = this.calculateDBR();
-    this.setState({ dbr });
+    this.updateWidget();
   }
 
   render() {
@@ -221,13 +241,16 @@ export class App extends React.Component<AppProps, IAppState> {
       <div className="mf-ac">
         <div className="mf-ac__wrapper">
             <Header />
-            <Controls income = { this.monthlyIncome }
-                      debts = { this.monthlyDebts }
-                      downPayment = { this.downPayment }
+            <Controls income = { '' + this.monthlyIncome }
+                      debts = { '' + this.monthlyDebts }
+                      downPayment = { '' + this.downPayment }
                       onIncomeChange = { this.onIncomeChange }
                       onDebtsChange = { this.onDebtsChange }
-                      onDownPaymentChange = { this.onDownPaymentChange } />
-            <Result status = "Excellent" propertyPriceLimit = "1,500,000" dbr = { this.state.dbr } />
+                      onDownPaymentChange = { this.onDownPaymentChange }
+                      propertyPrice = { this.propertyPrice } />
+            <Result status = "Excellent"
+                    affordablePropertyPrice = { this.state.affordablePropertyPrice }
+                    dbr = { this.state.dbr } />
             <Footer monthlyPayment = "7,845 AED/month"
                     loanDuration = "25"
                     downPayment = "25"

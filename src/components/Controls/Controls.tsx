@@ -1,4 +1,6 @@
 /* tslint:disable function-name */
+/* tslint:disable max-line-length */
+
 import * as React from 'react';
 
 import { Input } from '../Input';
@@ -6,25 +8,22 @@ import { Input } from '../Input';
 import * as Tools from '../../Tools';
 
 export interface IControlsProps {
-  income: number;
-  debts: number;
-  downPayment: number;
+  income: string;
+  debts: string;
+  downPayment: string;
   onIncomeChange: any;
   onDebtsChange: any;
   onDownPaymentChange: any;
+  propertyPrice: number;
 }
 
 export interface IControlsState {
-  income: number;
-  debts: number;
-  downPayment: number;
-}
-
-export interface IControlsReturn {
-  income?: string;
-  debts?: string;
-  downPayment?: string;
-  [key: string]: string;
+  income: string;
+  debts: string;
+  downPayment: string;
+  incomeErrorMessage: string;
+  debtsErrorMessage: string;
+  downPaymentErrorMessage: string;
 }
 
 export class Controls extends React.Component<IControlsProps, IControlsState> {
@@ -35,8 +34,11 @@ export class Controls extends React.Component<IControlsProps, IControlsState> {
   constructor(props: IControlsProps) {
     super(props);
 
-    const { income, debts, downPayment  } = this.props;
-    this.state = { income, debts, downPayment };
+    const { income, debts, downPayment } = this.props;
+    const incomeErrorMessage = '';
+    const debtsErrorMessage = '';
+    const downPaymentErrorMessage = '';
+    this.state = { income, debts, downPayment, incomeErrorMessage, debtsErrorMessage, downPaymentErrorMessage };
 
     this.onIncomeChange = this.onIncomeChange.bind(this);
     this.onDebtsChange = this.onDebtsChange.bind(this);
@@ -44,56 +46,85 @@ export class Controls extends React.Component<IControlsProps, IControlsState> {
     this.getNumberValue = this.getNumberValue.bind(this);
   }
 
+  componentDidMount() {
+    this.setState((prevState: IControlsState) => {
+      return {
+        income: Tools.toNumberFormat(prevState.income),
+        debts: Tools.toNumberFormat(prevState.debts),
+        downPayment: Tools.toNumberFormat(prevState.downPayment),
+      };
+    });
+  }
+
   private getNumberValue(value: string): number {
-    if (!value) return 0;
     const numberValue = Tools.toNumber(value);
-    if (Number.isNaN(numberValue)) return 0;
     return numberValue;
   }
 
   onIncomeChange(event: Event) {
     window.clearTimeout(this.timer);
     const value = (event.target as HTMLInputElement).value;
-    const income = this.getNumberValue(value);
+    const numberValue = this.getNumberValue(value);
 
-    if (income < 0) { return; }
-    this.setState({ income });
+    if (Number.isNaN(numberValue)) { return; }
 
-    this.timer = window.setTimeout(
-      () => {
-        this.props.onIncomeChange(income);
-      },
-      this.TIMEOUT);
+    if (value === '') {
+      this.setState({ income: '', incomeErrorMessage: 'Please enter income value' });
+    } else {
+      const income = Tools.toNumberFormat(String(numberValue));
+      const incomeErrorMessage = '';
+      this.setState({ income, incomeErrorMessage });
+      this.timer = window.setTimeout(
+        () => {
+          this.props.onIncomeChange(numberValue);
+        },
+        this.TIMEOUT);
+    }
   }
 
   onDebtsChange(event: Event) {
     window.clearTimeout(this.timer);
     const value = (event.target as HTMLInputElement).value;
-    const debts = this.getNumberValue(value);
+    const numberValue = this.getNumberValue(value);
 
-    if (debts < 0) { return; }
-    this.setState({ debts });
+    if (Number.isNaN(numberValue)) { return; }
 
-    this.timer = window.setTimeout(
-      () => {
-        this.props.onDebtsChange(debts);
-      },
-      this.TIMEOUT);
+    if (value === '') {
+      this.setState({ debts: '', debtsErrorMessage: 'Please enter debts value' });
+    } else {
+      const debts = Tools.toNumberFormat(String(numberValue));
+      const debtsErrorMessage = '';
+      this.setState({ debts, debtsErrorMessage });
+      this.timer = window.setTimeout(
+        () => {
+          this.props.onDebtsChange(numberValue);
+        },
+        this.TIMEOUT);
+    }
   }
 
   onDownPaymentChange(event: Event) {
     window.clearTimeout(this.timer);
     const value = (event.target as HTMLInputElement).value;
-    const downPayment = this.getNumberValue(value);
+    const numberValue = this.getNumberValue(value);
 
-    if (downPayment < 0) { return; }
-    this.setState({ downPayment });
+    if (Number.isNaN(numberValue)) { return; }
 
-    this.timer = window.setTimeout(
-      () => {
-        this.props.onDownPaymentChange(downPayment);
-      },
-      this.TIMEOUT);
+    if (value === '') {
+      this.setState({ downPayment: '', downPaymentErrorMessage: 'Please enter down payment' });
+    } else {
+      const downPayment = Tools.toNumberFormat(String(numberValue));
+      let downPaymentErrorMessage = '';
+      if (4 * numberValue < this.props.propertyPrice) {
+        downPaymentErrorMessage = 'Down payment must be 25% (or more) of property price';
+      }
+      this.setState({ downPayment, downPaymentErrorMessage });
+      this.timer = window.setTimeout(
+        () => {
+          this.props.onDownPaymentChange(numberValue);
+        },
+        this.TIMEOUT);
+    }
   }
 
   render() {
@@ -107,6 +138,7 @@ export class Controls extends React.Component<IControlsProps, IControlsState> {
           placeholder="Monthly income"
           onChange={ this.onIncomeChange }
           value={ this.state.income }
+          errorMessage={ this.state.incomeErrorMessage }
           type="text" />
       </div>
 
@@ -118,6 +150,7 @@ export class Controls extends React.Component<IControlsProps, IControlsState> {
           placeholder="Monthly debts"
           onChange={ this.onDebtsChange }
           value={ this.state.debts }
+          errorMessage={ this.state.debtsErrorMessage }
           type="text" />
       </div>
 
@@ -129,6 +162,7 @@ export class Controls extends React.Component<IControlsProps, IControlsState> {
           placeholder="Down payment"
           onChange={ this.onDownPaymentChange }
           value={ this.state.downPayment }
+          errorMessage={ this.state.downPaymentErrorMessage }
           type="text" />
       </div>
     </div>

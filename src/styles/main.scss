@@ -132,6 +132,13 @@
     cursor: pointer;
   }
 
+  &__input-error {
+    order: -1;
+    font-size: 0.8125em;
+    color: #a94442;
+    margin-top: 0.3rem;
+  }
+
   /*********************
     Result 
   *********************/
