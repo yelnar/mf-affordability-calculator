@@ -27,8 +27,6 @@ export function renderWidget({
   monthlyIncome,
   monthlyDebts}: IWidgetProps) {
 
-  console.log('renderWidget');
-
   const holders = document.querySelectorAll(selector);
 
   for (let i = 0; i < holders.length; i++) {

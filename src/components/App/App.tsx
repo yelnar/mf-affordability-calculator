@@ -8,6 +8,8 @@ import { Controls } from '../Controls';
 import { Result } from '../Result';
 import { Footer } from '../Footer';
 
+import { Calculator } from '../../Calculator';
+
 export interface AppProps {
   propertyPrice: number;
   downPayment: number;
@@ -18,17 +20,15 @@ export interface AppProps {
 }
 export interface IAppState {
   dbr: number;
+  monthlyPayment: number;
   affordablePropertyPrice: number;
   isSalaryEnough: boolean;
   isDownPaymentEnough: boolean;
 }
 
-// export const HelloWorld = (
-//     props: HelloWorldProps) => <h1>Hello from { props.compiler } and { props.framework }</h1>;
-
 export class App extends React.Component<AppProps, IAppState> {
 
-  /**
+ /**
    * Property price
    * @type {number}
    */
@@ -38,7 +38,7 @@ export class App extends React.Component<AppProps, IAppState> {
    * Down payment
    * @type {number}
    */
-  private downPayment = 375000;
+  private downPayment: number;
 
   /**
    * Loan length
@@ -64,20 +64,19 @@ export class App extends React.Component<AppProps, IAppState> {
    */
   private monthlyDebts = 5000;
 
-  /**
-   * VAT: 5%
-   * @type {number}
-   */
-  private VAT = 1.05;
+  private calculator: Calculator;
 
   constructor(props: AppProps) {
     super(props);
     this.state = {
       dbr: 0,
+      monthlyPayment: 0,
       affordablePropertyPrice: 0,
       isSalaryEnough: false,
       isDownPaymentEnough: false,
     };
+
+    this.calculator = new Calculator();
 
     if (this.props.propertyPrice) { this.propertyPrice =  this.props.propertyPrice; }
     if (this.props.loanLength) { this.loanLength =  this.props.loanLength; }
@@ -98,138 +97,12 @@ export class App extends React.Component<AppProps, IAppState> {
   }
 
   updateWidget() {
-    const dbr = this.calculateDBR();
-    const affordablePropertyPrice = this.calculateAffordablePropertyPrice(this.loanLength, this.interestRate);
-    const isSalaryEnough = this.isSalaryEnough();
-    const isDownPaymentEnough = this.isDownPaymentEnough();
-    this.setState({ dbr, affordablePropertyPrice, isSalaryEnough, isDownPaymentEnough });
-  }
-
-  private calculateMonthlyPayment(withFeesValue = false): number {
-    let loanAmount = this.getLoanAmount(this.propertyPrice, this.downPayment);
-    const landDepartmentFee = this.getLandDepartmentFee(this.propertyPrice);
-    const registrationFee = this.getRegistrationFee(this.propertyPrice);
-    const mortgageRegistration = this.getMortgageRegistration(loanAmount);
-    const realEstateAgencyFee = this.getRealEstateAgencyFee(this.propertyPrice);
-    const bankArrangementFee = this.getBankArrangementFee(loanAmount);
-    const valuation = 3150;
-    const totalPurchaseCost = this.getTotalPurchaseCost(landDepartmentFee, registrationFee, mortgageRegistration, realEstateAgencyFee, bankArrangementFee, valuation);
-
-    if (withFeesValue) {
-      loanAmount += 0.75 * totalPurchaseCost;
-    }
-
-    const monthlyPayment = this.getMothlyPayment(this.loanLength, this.interestRate, loanAmount);
-    return monthlyPayment;
-  }
-
-  /**
-   * Calculates loan amount
-   * @param {number} propertyPrice
-   * @param {number} downPayment
-   * @returns {number}
-   */
-  private getLoanAmount(propertyPrice: number, downPayment: number): number {
-    return propertyPrice - downPayment;
-  }
-
-  /**
-   * Calculates land department fee
-   * @param {number} propertyPrice
-   * @returns {number}
-   */
-  private getLandDepartmentFee(propertyPrice: number): number {
-    return propertyPrice * 0.04 + 580;
-  }
-
-  /**
-   * Calculates registration fee including VAT
-   * @param {number} propertyPrice
-   * @returns {number} registration fee + VAT
-   */
-  private getRegistrationFee(propertyPrice: number): number {
-    const registrationFee = propertyPrice < 500000 ? 2000 : 4000;
-    return registrationFee * this.VAT;
-  }
-
-  /**
-   * Calculates mortgage registration fee
-   * @param {number} loanAmount
-   * @returns {number} 0.25% of loan amount + 10 AED
-   */
-  private getMortgageRegistration(loanAmount: number): number {
-    return loanAmount * (0.25 / 100) + 10;
-  }
-
-  /**
-   * Calculates real estate agency fee including VAT
-   * @param {number} propertyPrice
-   * @returns {number} 2% of property price + VAT
-   */
-  private getRealEstateAgencyFee(propertyPrice: number): number {
-    return propertyPrice * 0.02 * this.VAT;
-  }
-
-  /**
-   * Calculates loan amount including VAT
-   * @param {number} loanAmount
-   * @returns {number} 0.25% of loan amount + VAT
-   */
-  private getBankArrangementFee(loanAmount: number): number {
-    return loanAmount * 0.0025 * this.VAT;
-  }
-
-  /**
-   * Calculates total purchase cost
-   * @param {number[]} costs
-   * @returns {number}
-   */
-  private getTotalPurchaseCost(...costs: number[]): number {
-    return costs.reduce((sum, x) => sum + x);
-  }
-
-  /**
-   * Calculate monthly payment
-   * @param {number} loanLength
-   * @param {number} interestRate
-   * @param {number} loanAmount
-   * @returns {number}
-   */
-  private getMothlyPayment(loanLength: number, interestRate: number, loanAmount: number): number {
-    const periods = loanLength * 12;
-    const monthlyInterest = this.getMonthlyInterest(interestRate);
-    const term = Math.pow((1 + monthlyInterest), periods);
-    return loanAmount * (monthlyInterest * term / (term - 1));
-  }
-
-  getMonthlyInterest(interestRate: number) {
-    const interestRateNumber = Number((interestRate / 100).toFixed(4));
-    const monthlyInterest = interestRateNumber / 12;
-    return monthlyInterest;
-  }
-
-  private calculateDBR(): number {
-    const monthlyPayment = this.calculateMonthlyPayment();
-    const totalMonthlyDebts = monthlyPayment + this.monthlyDebts;
-    return Math.round(totalMonthlyDebts / this.monthlyIncome * 100);
-  }
-
-  calculateAffordablePropertyPrice(loanLength: number, interestRate: number): number {
-    const periods = loanLength * 12;
-    const monthlyInterest = this.getMonthlyInterest(interestRate);
-    const term = Math.pow((1 + monthlyInterest), periods);
-    const monthlyPaymentFactor = (monthlyInterest * term / (term - 1));
-    // return Math.round(((this.monthlyIncome / 2 - this.monthlyDebts) / monthlyPaymentFactor + this.downPayment) / 100) * 100;
-    return Math.round(4 * ((this.monthlyIncome / 2 - this.monthlyDebts) / monthlyPaymentFactor) / (3 * 100)) * 100;
-  }
-
-  isSalaryEnough(): boolean {
-    const loanAmount = this.getLoanAmount(this.propertyPrice, this.downPayment);
-    return loanAmount < 7 * 12 * this.monthlyIncome;
-  }
-
-  isDownPaymentEnough(): boolean {
-    return 4 * this.downPayment >= this.propertyPrice;
+    const monthlyPayment = this.calculator.calculateMonthlyPayment(this.propertyPrice, this.downPayment, this.loanLength, this.interestRate);
+    const dbr = this.calculator.calculateDBR(this.propertyPrice, this.downPayment, this.loanLength, this.interestRate, this.monthlyIncome, this.monthlyDebts);
+    const affordablePropertyPrice = this.calculator.calculateAffordablePropertyPrice(this.downPayment, this.loanLength, this.interestRate, this.monthlyIncome, this.monthlyDebts, dbr);
+    const isSalaryEnough = this.calculator.isSalaryEnough(this.propertyPrice, this.downPayment, this.monthlyIncome);
+    const isDownPaymentEnough = this.calculator.isDownPaymentEnough(this.propertyPrice, this.downPayment);
+    this.setState({ dbr, monthlyPayment, affordablePropertyPrice, isSalaryEnough, isDownPaymentEnough });
   }
 
   onIncomeChange(income: number): void {
@@ -263,10 +136,10 @@ export class App extends React.Component<AppProps, IAppState> {
                     affordablePropertyPrice = { this.state.affordablePropertyPrice }
                     isSalaryEnough = { this.state.isSalaryEnough }
                     isDownPaymentEnough = { this.state.isDownPaymentEnough } />
-            <Footer monthlyPayment = "7,845 AED/month"
-                    loanDuration = "25"
-                    downPayment = "25"
-                    interestRate = "3.24"/>
+            <Footer monthlyPayment = { this.state.monthlyPayment }
+                    loanLength = { this.loanLength }
+                    downPayment = { this.downPayment }
+                    interestRate = { this.interestRate }/>
         </div>
       </div>
     );
