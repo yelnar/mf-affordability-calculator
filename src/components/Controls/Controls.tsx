@@ -63,68 +63,74 @@ export class Controls extends React.Component<IControlsProps, IControlsState> {
 
   onIncomeChange(event: Event) {
     window.clearTimeout(this.timer);
-    const value = (event.target as HTMLInputElement).value;
-    const numberValue = this.getNumberValue(value);
+    const incomeValue = (event.target as HTMLInputElement).value;
+    const incomeNumberValue = this.getNumberValue(incomeValue);
 
-    if (Number.isNaN(numberValue)) { return; }
+    if (Number.isNaN(incomeNumberValue)) { return; }
 
-    if (value === '') {
+    if (incomeValue === '') {
       this.setState({ income: '', incomeErrorMessage: 'Please enter income value' });
-    } else {
-      const income = Tools.toNumberFormat(String(numberValue));
-      const incomeErrorMessage = '';
-      this.setState({ income, incomeErrorMessage });
-      this.timer = window.setTimeout(
-        () => {
-          this.props.onIncomeChange(numberValue);
-        },
-        this.TIMEOUT);
+      return;
     }
+
+    const income = Tools.toNumberFormat(String(incomeNumberValue));
+    const incomeErrorMessage = '';
+    this.setState({ income, incomeErrorMessage });
+    this.timer = window.setTimeout(
+      () => {
+        this.props.onIncomeChange(incomeNumberValue);
+      },
+      this.TIMEOUT);
   }
 
   onDebtsChange(event: Event) {
     window.clearTimeout(this.timer);
-    const value = (event.target as HTMLInputElement).value;
-    const numberValue = this.getNumberValue(value);
+    const debtsValue = (event.target as HTMLInputElement).value;
+    const debtsNumberValue = this.getNumberValue(debtsValue);
 
-    if (Number.isNaN(numberValue)) { return; }
+    if (Number.isNaN(debtsNumberValue)) { return; }
 
-    if (value === '') {
+    if (debtsValue === '') {
       this.setState({ debts: '', debtsErrorMessage: 'Please enter debts value' });
-    } else {
-      const debts = Tools.toNumberFormat(String(numberValue));
-      const debtsErrorMessage = '';
-      this.setState({ debts, debtsErrorMessage });
-      this.timer = window.setTimeout(
-        () => {
-          this.props.onDebtsChange(numberValue);
-        },
-        this.TIMEOUT);
+      return;
     }
+
+    const debts = Tools.toNumberFormat(String(debtsNumberValue));
+    const debtsErrorMessage = '';
+    this.setState({ debts, debtsErrorMessage });
+    this.timer = window.setTimeout(
+      () => {
+        this.props.onDebtsChange(debtsNumberValue);
+      },
+      this.TIMEOUT);
   }
 
   onDownPaymentChange(event: Event) {
     window.clearTimeout(this.timer);
-    const value = (event.target as HTMLInputElement).value;
-    const numberValue = this.getNumberValue(value);
+    const downPaymentValue = (event.target as HTMLInputElement).value;
+    const downPaymentNumberValue = this.getNumberValue(downPaymentValue);
 
-    if (Number.isNaN(numberValue)) { return; }
+    if (Number.isNaN(downPaymentNumberValue)) { return; }
 
-    if (value === '') {
+    if (downPaymentValue === '') {
       this.setState({ downPayment: '', downPaymentErrorMessage: 'Please enter down payment' });
-    } else {
-      const downPayment = Tools.toNumberFormat(String(numberValue));
-      let downPaymentErrorMessage = '';
-      if (4 * numberValue < this.props.propertyPrice) {
-        downPaymentErrorMessage = 'Down payment must be 25% (or more) of property price';
-      }
-      this.setState({ downPayment, downPaymentErrorMessage });
-      this.timer = window.setTimeout(
-        () => {
-          this.props.onDownPaymentChange(numberValue);
-        },
-        this.TIMEOUT);
+      return;
     }
+
+    if (4 * downPaymentNumberValue < this.props.propertyPrice) {
+      const downPaymentErrorMessage = 'Down payment must be 25% (or more) of property price';
+      this.setState({ downPaymentErrorMessage });
+      return;
+    }
+
+    const downPayment = Tools.toNumberFormat(String(downPaymentNumberValue));
+    const downPaymentErrorMessage = '';
+    this.setState({ downPayment, downPaymentErrorMessage });
+    this.timer = window.setTimeout(
+      () => {
+        this.props.onDownPaymentChange(downPaymentNumberValue);
+      },
+      this.TIMEOUT);
   }
 
   render() {

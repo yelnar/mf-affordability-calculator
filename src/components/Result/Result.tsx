@@ -14,6 +14,7 @@ export interface IResultProps {
 
 export function Result(props: IResultProps) {
   let status;
+  let hideDetails = false;
 
   if (!props.isSalaryEnough) {
     status = 'Poor';
@@ -27,17 +28,24 @@ export function Result(props: IResultProps) {
     status = 'Poor';
   }
 
+  if (props.dbr > 100) {
+    hideDetails = true;
+  }
+
   return (
     <div className="mf-ac__result-box">
         <div className="mf-ac__result-status">
           <p>Your ability to afford this property</p>
           <h2>{ status }</h2>
-          <h3>{ props.dbr }</h3>
+          {/* <h3>{ hideDetails ? '' : props.dbr }</h3> */}
         </div>
-        <div className="mf-ac__result-detail">
-          <p>You can afford properties up to { Tools.toNumberFormat(String(props.affordablePropertyPrice)) } </p>
-          <a href="#" className="mf-ac__text-link">Search for affordable properties</a>
-        </div>
+
+        { hideDetails ? '' :
+          <div className="mf-ac__result-detail">
+            <p>You can afford properties up to { Tools.toNumberFormat(String(props.affordablePropertyPrice)) } </p>
+            <a href="#" className="mf-ac__text-link">Search for affordable properties</a>
+          </div>
+        }
     </div>
   );
 }

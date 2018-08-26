@@ -18,8 +18,7 @@ export function Footer(props: IFooterProps) {
       <div className="mf-ac__footer__first-block">
         <p>Your monthly payments will start from { Tools.toNumberFormat(String(props.monthlyPayment)) } AED/month.</p>
         <p>
-          This calculation is based on { props.loanLength } years loan duration,
-          { Tools.toNumberFormat(String(props.downPayment)) } down payment and at an average
+          This calculation is based on { props.loanLength } years loan duration, { Tools.toNumberFormat(String(props.downPayment)) } AED down payment and at an average
           interest rate of { props.interestRate }%.
         </p>
       </div>
